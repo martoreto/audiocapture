@@ -8,9 +8,12 @@ media audio and metadata.
 This service must be installed as a privileged system app, in ``/system/priv-app``.
 This requires root or a custom recovery like TWRP.
 
-[Download](https://github.com/martoreto/audiocapture/releases) the APK, install it normally and move to ``/system/priv-app``
-([this app](https://play.google.com/store/apps/details?id=de.j4velin.systemappmover) 
-may help).
+[Download](https://github.com/martoreto/audiocapture/releases) the APK, install it normally and move to ``/system/priv-app``.
+
+Here's the video (using TWRP):
+
+[![Video instructions](https://img.youtube.com/vi/K9l5HdOQ6LQ/0.jpg)](https://www.youtube.com/watch?v=K9l5HdOQ6LQ)
+
 
 ## Developing apps
 
