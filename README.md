@@ -15,5 +15,5 @@ may help).
 ## Developing apps
 
 To use this service in an app, you need to connect to the appropriate services,
-as defined in [AndroidManifest.xml](src/AndroidManifest.xml). Their AIDL interfaces
+as defined in [AndroidManifest.xml](src/main/AndroidManifest.xml). Their AIDL interfaces
 are defined in [``github/audiocapture-lib``](https://github.com/martoreto/audiocapture-lib/tree/master/src/main/aidl/com/github/martoreto/audiocapture).
