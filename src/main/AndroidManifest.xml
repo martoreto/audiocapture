@@ -1,0 +1,41 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.github.martoreto.audiocapture">
+
+    <permission
+        android:name="com.github.martoreto.audiocapture.REDIRECT_AUDIO"
+        android:label="@string/redirect_permission_label"
+        android:permissionGroup="android.permission-group.MICROPHONE"
+        android:protectionLevel="dangerous" />
+    <permission
+        android:name="com.github.martoreto.audiocapture.MONITOR_PLAYING_MEDIA"
+        android:label="@string/monitor_permission_label"
+        android:permissionGroup="android.permission-group.MICROPHONE"
+        android:protectionLevel="dangerous" />
+
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_ROUTING" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.MEDIA_CONTENT_CONTROL" />
+
+    <application
+        android:label="@string/app_name"
+        android:allowBackup="false"
+        android:supportsRtl="true"
+        tools:ignore="GoogleAppIndexingWarning,MissingApplicationIcon">
+
+        <service android:name=".AudioCaptureService"
+            android:exported="true"
+            android:permission="com.github.martoreto.audiocapture.REDIRECT_AUDIO">
+            <intent-filter>
+                <action android:name="com.github.martoreto.audiocapture.SERVICE" />
+            </intent-filter>
+        </service>
+        <service android:name=".MediaMetadataService"
+            android:exported="true"
+            android:permission="com.github.martoreto.audiocapture.MONITOR_PLAYING_MEDIA">
+            <intent-filter>
+                <action android:name="com.github.martoreto.audiocapture.METADATA_SERVICE" />
+            </intent-filter>
+        </service>
+    </application>
+</manifest>
