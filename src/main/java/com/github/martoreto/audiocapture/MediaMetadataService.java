@@ -8,18 +8,25 @@ import android.os.IBinder;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 public class MediaMetadataService extends Service {
     private static final String TAG = "MediaMetadataService";
 
     private RemoteCallbackList<IMediaMetadataCallback> mCallbacks = new RemoteCallbackList<>();
     MetadataMonitor mMonitor;
+    private boolean mNotAllowed;
 
     @Override
     public void onCreate() {
         super.onCreate();
-        mMonitor = new MetadataMonitor(this, null);
-        mMonitor.registerCallback(mMonitorCallback);
+        try {
+            mMonitor = new MetadataMonitor(this, null);
+            mMonitor.registerCallback(mMonitorCallback);
+        } catch (SecurityException e) {
+            Log.w(TAG, "No permission to monitor media metadata", e);
+            mNotAllowed = true;
+        }
     }
 
     @Nullable
@@ -30,13 +37,19 @@ public class MediaMetadataService extends Service {
 
     @Override
     public void onDestroy() {
-        mMonitor.release();
+        if (mMonitor != null) {
+            mMonitor.release();
+        }
         super.onDestroy();
     }
 
     private final IMediaMetadataService.Stub mBinder = new IMediaMetadataService.Stub() {
         @Override
         public void registerCallback(IMediaMetadataCallback callback) throws RemoteException {
+            if (mNotAllowed) {
+                throw new SecurityException("Audio Capture Service does not have the required " +
+                        "MEDIA_CONTENT_CONTROL permission.");
+            }
             mCallbacks.register(callback);
             mMonitor.dispatchState();
         }

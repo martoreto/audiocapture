@@ -7,8 +7,8 @@ android {
         applicationId "com.github.martoreto.audiocapture"
         minSdkVersion 23
         targetSdkVersion 25
-        versionCode 1100
-        versionName "1.1-dev"
+        versionCode 1101
+        versionName "1.1"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
@@ -23,6 +23,7 @@ android {
 
 dependencies {
     compile 'com.android.support:support-v4:25.4.0'
+    compile 'com.android.support:appcompat-v7:25.4.0'
     testCompile 'junit:junit:4.12'
     provided files('../systemlibs/framework.jar')
     compile project(":audiocapture-lib")

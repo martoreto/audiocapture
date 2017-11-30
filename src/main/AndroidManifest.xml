@@ -37,5 +37,9 @@
                 <action android:name="com.github.martoreto.audiocapture.METADATA_SERVICE" />
             </intent-filter>
         </service>
+
+        <activity android:name=".RequestPermissionsActivity"
+            android:launchMode="singleTask"
+            android:theme="@style/Theme.AppCompat.Transparent.NoActionBar" />
     </application>
 </manifest>

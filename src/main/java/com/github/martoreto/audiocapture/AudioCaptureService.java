@@ -1,8 +1,10 @@
 package com.github.martoreto.audiocapture;
 
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.media.AudioAttributes;
 import android.media.AudioFormat;
@@ -19,7 +21,9 @@ import android.os.RemoteException;
 import android.support.annotation.GuardedBy;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -30,6 +34,9 @@ import java.nio.channels.WritableByteChannel;
 public class AudioCaptureService extends Service {
     private static final String TAG = "AudioCaptureService";
 
+    static final String ACTION_PERMISSION_RESULT = "AudioCaptureService.PERMISSION_RESULT";
+    static final String EXTRA_RESULT = "result";
+
     private final Object mLock = new Object();
     @GuardedBy("mLock") private IAudioCaptureCallback mCallback;
 
@@ -38,6 +45,20 @@ public class AudioCaptureService extends Service {
     private AudioPolicy mAudioPolicy;
     private AudioRecord mAudioRecord;
     private AudioThread mAudioThread;
+    private boolean mWaitingForPermission;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        IntentFilter intentFilter = new IntentFilter(ACTION_PERMISSION_RESULT);
+        LocalBroadcastManager.getInstance(this).registerReceiver(mReceiver, intentFilter);
+    }
+
+    @Override
+    public void onDestroy() {
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mReceiver);
+        super.onDestroy();
+    }
 
     @Nullable
     @Override
@@ -51,7 +72,8 @@ public class AudioCaptureService extends Service {
             synchronized (mLock) {
                 if (ContextCompat.checkSelfPermission(AudioCaptureService.this,
                         "android.permission.MODIFY_AUDIO_ROUTING") != PackageManager.PERMISSION_GRANTED) {
-                    throw new SecurityException("Audio Capture Service is not installed as a system app.");
+                    throw new SecurityException("Audio Capture Service does not have the required " +
+                            "MODIFY_AUDIO_ROUTING permission.");
                 }
                 if (mCallback != null) {
                     throw new IllegalStateException("Capture already started");
@@ -98,6 +120,17 @@ public class AudioCaptureService extends Service {
             if (mCallback == null) {
                 return;
             }
+        }
+
+        if (checkSelfPermission(android.Manifest.permission.RECORD_AUDIO)
+                != PackageManager.PERMISSION_GRANTED ) {
+            mWaitingForPermission = true;
+            Intent intent = new Intent(this, RequestPermissionsActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+            return;
+        } else {
+            mWaitingForPermission = false;
         }
 
         mMix = buildAudioMix(true, 48000);
@@ -165,6 +198,8 @@ public class AudioCaptureService extends Service {
             savedCallback = mCallback;
             mCallback = null;
         }
+
+        mWaitingForPermission = false;
 
         if (mAudioThread != null) {
             mAudioThread.interrupt();
@@ -261,4 +296,23 @@ public class AudioCaptureService extends Service {
             }
         }
     }
+
+    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (ACTION_PERMISSION_RESULT.equals(intent.getAction())) {
+                if (!mWaitingForPermission) {
+                    return;
+                }
+                mWaitingForPermission = false;
+                int result = intent.getIntExtra(EXTRA_RESULT, PackageManager.PERMISSION_DENIED);
+                if (result == PackageManager.PERMISSION_GRANTED) {
+                    start();
+                } else {
+                    Toast.makeText(AudioCaptureService.this, R.string.permission_denied,
+                            Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
+    };
 }

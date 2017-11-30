@@ -2,4 +2,5 @@
     <string name="app_name">Audio Capture Service</string>
     <string name="redirect_permission_label">Redirect audio</string>
     <string name="monitor_permission_label">Retrieve current track metadata</string>
+    <string name="permission_denied">Audio Capture Service was denied audio capture permission.</string>
 </resources>
