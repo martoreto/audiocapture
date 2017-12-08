@@ -7,8 +7,8 @@ android {
         applicationId "com.github.martoreto.audiocapture"
         minSdkVersion 23
         targetSdkVersion 25
-        versionCode 1101
-        versionName "1.1"
+        versionCode 1200
+        versionName "1.2-dev"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
