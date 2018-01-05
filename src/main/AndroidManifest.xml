@@ -2,15 +2,19 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.github.martoreto.audiocapture">
 
+    <permission-group android:name="com.github.martoreto.audiocapture.GROUP"
+        android:label="@string/permission_group_label"
+        android:description="@string/permission_group_description"
+        android:icon="@drawable/ic_music_video_white_24dp" />
     <permission
         android:name="com.github.martoreto.audiocapture.REDIRECT_AUDIO"
         android:label="@string/redirect_permission_label"
-        android:permissionGroup="android.permission-group.MICROPHONE"
+        android:permissionGroup="com.github.martoreto.audiocapture.GROUP"
         android:protectionLevel="dangerous" />
     <permission
         android:name="com.github.martoreto.audiocapture.MONITOR_PLAYING_MEDIA"
         android:label="@string/monitor_permission_label"
-        android:permissionGroup="android.permission-group.MICROPHONE"
+        android:permissionGroup="com.github.martoreto.audiocapture.GROUP"
         android:protectionLevel="dangerous" />
 
     <uses-permission android:name="android.permission.MODIFY_AUDIO_ROUTING" />
@@ -38,8 +42,12 @@
             </intent-filter>
         </service>
 
-        <activity android:name=".RequestPermissionsActivity"
+        <activity android:name=".SetupActivity"
             android:launchMode="singleTask"
-            android:theme="@style/Theme.AppCompat.Transparent.NoActionBar" />
+            android:theme="@style/Theme.AppCompat.Transparent.NoActionBar">
+            <intent-filter>
+                <action android:name="com.github.martoreto.audiocapture.SETUP" />
+            </intent-filter>
+        </activity>
     </application>
 </manifest>

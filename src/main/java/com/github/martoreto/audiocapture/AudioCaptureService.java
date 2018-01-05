@@ -125,7 +125,7 @@ public class AudioCaptureService extends Service {
         if (checkSelfPermission(android.Manifest.permission.RECORD_AUDIO)
                 != PackageManager.PERMISSION_GRANTED ) {
             mWaitingForPermission = true;
-            Intent intent = new Intent(this, RequestPermissionsActivity.class);
+            Intent intent = new Intent(this, SetupActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
             return;
