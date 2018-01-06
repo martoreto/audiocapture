@@ -14,6 +14,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.google.common.io.CharStreams;
+import com.stericson.RootShell.RootShell;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -37,43 +38,74 @@ public class SetupActivity extends AppCompatActivity {
         super.onStart();
 
         if (!AudioCaptureUtils.isAudioCapturePrivSystemApp(getPackageManager())) {
-            if (Shell.SU.available()) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setMessage(R.string.install_alert_message);
-                builder.setPositiveButton(R.string.button_systemize, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        try {
-                            InputStream shellStream = getResources().openRawResource(R.raw.systemize);
-                            List<String> cmd = CharStreams.readLines(new BufferedReader(new InputStreamReader(shellStream)));
-                            List<String> result = Shell.SU.run(cmd);
-                            if (result == null) {
-                                throw new RuntimeException("Script failed");
+            new Thread() {
+                @Override
+                public void run() {
+                    if (RootShell.isRootAvailable()) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                AlertDialog.Builder builder = new AlertDialog.Builder(SetupActivity.this);
+                                builder.setMessage(R.string.install_alert_message);
+                                builder.setPositiveButton(R.string.button_systemize, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        new Thread() {
+                                            @Override
+                                            public void run() {
+                                                String error = null;
+                                                try {
+                                                    InputStream shellStream = getResources().openRawResource(R.raw.systemize);
+                                                    List<String> cmd = CharStreams.readLines(new BufferedReader(new InputStreamReader(shellStream)));
+                                                    List<String> result = Shell.SU.run(cmd);
+                                                    if (result == null) {
+                                                        throw new RuntimeException("Script failed");
+                                                    }
+                                                } catch (Exception e) {
+                                                    Log.e(TAG, "Error systemizing", e);
+                                                    error = e.toString();
+                                                }
+                                                final String error2 = error;
+                                                runOnUiThread(new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        if (error2 != null) {
+                                                            Toast.makeText(SetupActivity.this,
+                                                                    getString(R.string.error_systemizing, error2),
+                                                                    Toast.LENGTH_LONG).show();
+                                                            setResult(RESULT_CANCELED);
+                                                        } else {
+                                                            setResult(RESULT_OK);
+                                                        }
+                                                        finish();
+                                                    }
+                                                });
+                                            }
+                                        }.start();
+                                    }
+                                });
+                                builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        setResult(RESULT_CANCELED);
+                                        finish();
+                                    }
+                                });
+                                builder.show();
                             }
-                        } catch (Exception e) {
-                            Log.e(TAG, "Error systemizing", e);
-                            Toast.makeText(SetupActivity.this,
-                                    getString(R.string.error_systemizing, e.toString()),
-                                    Toast.LENGTH_LONG).show();
-                        }
-                        setResult(RESULT_OK);
-                        finish();
+                        });
+                    } else {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(SetupActivity.this, R.string.error_no_su, Toast.LENGTH_LONG).show();
+                                setResult(RESULT_CANCELED);
+                                finish();
+                            }
+                        });
                     }
-                });
-                builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        setResult(RESULT_CANCELED);
-                        finish();
-                    }
-                });
-                builder.show();
-                return;
-            } else {
-                Toast.makeText(SetupActivity.this, R.string.error_no_su, Toast.LENGTH_LONG).show();
-                setResult(RESULT_CANCELED);
-                finish();
-            }
+                }
+            }.start();
             return;
         }
 

@@ -5,7 +5,7 @@
     <string name="redirect_permission_label">Redirect audio</string>
     <string name="monitor_permission_label">Retrieve current track metadata</string>
     <string name="permission_denied">Audio Capture Service was denied audio capture permission.</string>
-    <string name="install_alert_message">Audio Capture Service only works as a system app.\n\nSystemize Audio Capture Service? This will reboot your device.</string>
+    <string name="install_alert_message">Audio Capture Service only works as a system app.\n\nSystemize Audio Capture Service? This requires root and will reboot your device.</string>
     <string name="button_systemize">Systemize</string>
     <string name="error_systemizing">Error systemizing: %1$s</string>
     <string name="cancel">Cancel</string>
